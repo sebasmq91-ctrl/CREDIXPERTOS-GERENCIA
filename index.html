@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#072b30">
+<title>Credixpertos — Gerencia</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --cx:#072b30;--ct:#12cbe3;
+  --bg:#0b1e21;--bg2:#0f2529;--bg3:#162c30;
+  --sf:rgba(255,255,255,.045);--sf2:rgba(255,255,255,.08);
+  --bd:rgba(255,255,255,.08);--bd2:rgba(18,203,227,.22);
+  --tx:#eef3f3;--mu:rgba(238,243,243,.52);--hi:rgba(238,243,243,.28);
+  --amber:#f0a30a;--coral:#e05c3a;--green:#2db87a;--purple:#8b77f5;--blue:#378ADD;
+  font-family:'DM Sans',system-ui,sans-serif;
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--tx);display:flex;flex-direction:column}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 0%,rgba(18,203,227,.06) 0%,transparent 60%),radial-gradient(ellipse at 80% 100%,rgba(18,203,227,.04) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* HEADER */
+.header{flex-shrink:0;padding:14px 18px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bd);position:relative;z-index:10;background:var(--bg)}
+.brand{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--ct);letter-spacing:-.3px}
+.brand-sub{font-size:10px;color:var(--mu);font-style:italic;margin-top:1px}
+.hright{display:flex;align-items:center;gap:8px}
+.date-badge{font-family:'DM Mono',monospace;font-size:11px;color:var(--mu);background:var(--sf);border:1px solid var(--bd);border-radius:6px;padding:4px 9px;cursor:pointer}
+.hbtn{width:32px;height:32px;border-radius:8px;border:1px solid var(--bd);background:var(--sf);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;position:relative;transition:all .15s}
+.hbtn:hover{background:var(--sf2);border-color:var(--bd2)}
+.ndot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--ct);border:1.5px solid var(--bg);display:none}
+
+/* TABS */
+.tabs{flex-shrink:0;display:flex;padding:10px 18px 0;gap:4px;border-bottom:1px solid var(--bd);background:var(--bg);z-index:10;overflow-x:auto}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:7px 13px;border-radius:8px 8px 0 0;border:none;background:transparent;color:var(--mu);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;border-bottom:2px solid transparent}
+.tab.active{color:var(--ct);border-bottom-color:var(--ct);background:var(--sf)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;z-index:1;padding:16px 18px 90px}
+.main::-webkit-scrollbar{width:3px}
+.main::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px}
+.page{display:none}
+.page.active{display:block}
+
+/* SECTIONS */
+.sec{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--hi);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+.sec::after{content:'';flex:1;height:1px;background:var(--bd)}
+
+/* CARDS */
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;transition:border-color .15s}
+.card:hover{border-color:var(--bd2)}
+.card+.card{margin-top:8px}
+
+/* PROGRESS */
+.pbar-wrap{margin:8px 0 4px}
+.pbar-labels{display:flex;justify-content:space-between;font-size:11px;color:var(--mu);margin-bottom:5px}
+.pbar{height:5px;background:var(--sf2);border-radius:3px;overflow:hidden}
+.pbar-fill{height:100%;background:linear-gradient(90deg,var(--ct),#0fb8ce);border-radius:3px;transition:width .4s ease}
+
+/* CHECKLIST */
+.week-strip{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px}
+.week-strip::-webkit-scrollbar{display:none}
+.dpill{padding:6px 13px;border-radius:20px;border:1px solid var(--bd);background:transparent;font-size:11px;cursor:pointer;color:var(--mu);white-space:nowrap;transition:all .15s;font-weight:500;font-family:'DM Sans',sans-serif}
+.dpill.active{background:var(--ct);color:var(--cx);border-color:var(--ct);font-weight:600}
+.dpill.today{border-color:var(--ct);color:var(--ct)}
+.cl{display:flex;flex-direction:column;gap:6px}
+.ci{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;cursor:pointer;transition:all .2s;user-select:none}
+.ci.done{opacity:.45;background:transparent}
+.ci.done .ci-title{text-decoration:line-through}
+.cibox{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--bd2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:10px;color:transparent}
+.ci.done .cibox{background:var(--green);border-color:var(--green);color:#fff}
+.ci-info{flex:1;min-width:0}
+.ci-title{font-size:13px;font-weight:500;color:var(--tx);line-height:1.3}
+.ci-meta{font-size:10px;color:var(--mu);margin-top:2px;font-family:'DM Mono',monospace}
+.citag{font-size:9px;font-weight:600;padding:2px 7px;border-radius:5px;flex-shrink:0}
+.ibt{width:26px;height:26px;border-radius:6px;border:none;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--hi);font-size:12px;transition:all .15s;flex-shrink:0}
+.ibt:hover{background:var(--sf2);color:var(--tx)}
+.ibt.del:hover{color:var(--coral);background:rgba(224,92,58,.1)}
+
+/* ROL */
+.rol-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;overflow:hidden;margin-bottom:8px;transition:border-color .15s}
+.rol-card:hover{border-color:var(--bd2)}
+.rc-head{display:flex;align-items:center;gap:10px;padding:13px 14px;cursor:pointer;user-select:none}
+.rc-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.rc-info{flex:1}
+.rc-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--tx)}
+.rc-sub{font-size:11px;color:var(--mu);margin-top:2px}
+.rc-badge{font-size:9px;font-weight:600;padding:2px 7px;border-radius:6px;flex-shrink:0}
+.rc-body{padding:0 14px 12px;display:none}
+.rc-body.open{display:block}
+.ri{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd);font-size:12px;color:var(--mu);line-height:1.5}
+.ri:last-child{border-bottom:none}
+.ri::before{content:'→';color:var(--ct);font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px}
+
+/* PRODUCCIÓN */
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.prod-card{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;text-align:center}
+.prod-num{font-family:'DM Mono',monospace;font-size:26px;font-weight:500;color:var(--ct);line-height:1}
+.prod-label{font-size:10px;color:var(--mu);margin-top:4px;text-transform:uppercase;letter-spacing:.06em}
+.prod-input{width:100%;border:1px solid var(--bd);border-radius:7px;padding:7px 10px;font-size:22px;font-family:'DM Mono',monospace;color:var(--ct);background:transparent;text-align:center;font-weight:500}
+.prod-input:focus{outline:none;border-color:var(--ct)}
+.semana-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.snav-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--bd);background:var(--sf);cursor:pointer;color:var(--mu);font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'DM Sans',sans-serif}
+.snav-btn:hover{border-color:var(--bd2);color:var(--ct)}
+.snav-label{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--tx)}
+.conv-rate{background:rgba(18,203,227,.06);border:1px solid var(--bd2);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.cr-label{font-size:12px;color:var(--mu)}
+.cr-val{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--ct)}
+
+/* NOTAS */
+.nota-item{background:var(--sf);border:1px solid var(--bd);border-radius:10px;padding:12px 14px;margin-bottom:8px;cursor:pointer;transition:border-color .15s}
+.nota-item:hover{border-color:var(--bd2)}
+.nota-fecha{font-size:10px;color:var(--mu);font-family:'DM Mono',monospace;margin-bottom:4px}
+.nota-titulo{font-size:13px;font-weight:500;color:var(--tx);margin-bottom:4px}
+.nota-preview{font-size:11px;color:var(--mu);line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nota-tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.ntag{font-size:9px;font-weight:600;padding:1px 7px;border-radius:5px}
+
+/* RECORDATORIOS */
+.ev-item{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--sf);border:1px solid var(--bd);border-radius:10px;margin-bottom:6px}
+.ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ev-info{flex:1;min-width:0}
+.ev-title{font-size:12px;font-weight:500;color:var(--tx)}
+.ev-time{font-size:10px;color:var(--mu);font-family:'DM Mono',monospace;margin-top:2px}
+
+/* FAB */
+.fab{position:fixed;bottom:22px;right:18px;width:52px;height:52px;border-radius:16px;background:var(--ct);color:var(--cx);border:none;cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(18,203,227,.4);z-index:50;transition:all .15s}
+.fab:hover{transform:scale(1.06)}
+.fab:active{transform:scale(.94)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:200;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.mbox{background:#152b2f;border-radius:20px 20px 0 0;width:100%;max-width:560px;padding:20px 20px 40px;transform:translateY(100%);transition:transform .28s cubic-bezier(.32,1,.56,1);border-top:1px solid var(--bd2);max-height:90vh;overflow-y:auto}
+.modal-overlay.open .mbox{transform:translateY(0)}
+.mhandle{width:36px;height:4px;border-radius:2px;background:var(--bd2);margin:0 auto 18px}
+.mtitle{font-family:'Syne',sans-serif;font-weight:700;font-size:16px;color:var(--tx);margin-bottom:16px}
+.mfg{margin-bottom:12px}
+.mfg label{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--hi);display:block;margin-bottom:4px;font-weight:500}
+.mfg input,.mfg select,.mfg textarea{width:100%;border:1px solid var(--bd);border-radius:9px;padding:10px 12px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--tx);background:var(--sf);transition:border .15s}
+.mfg textarea{resize:none;min-height:80px}
+.mfg input:focus,.mfg select:focus,.mfg textarea:focus{outline:none;border-color:var(--ct)}
+.mfg select option{background:#152b2f}
+.mrow{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mfoot{display:flex;gap:8px;margin-top:16px}
+.mbtn{flex:1;padding:12px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;transition:all .15s}
+.mbtn.cancel{background:var(--sf);color:var(--mu);border:1px solid var(--bd)}
+.mbtn.ok{background:var(--ct);color:var(--cx)}
+.mbtn.ok:hover{background:#0fb8ce}
+.mbtn.danger{background:rgba(224,92,58,.15);color:var(--coral);border:1px solid rgba(224,92,58,.3)}
+
+/* TOAST */
+.toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-8px);background:#1a3236;color:var(--tx);padding:10px 16px;border-radius:10px;font-size:12px;display:flex;align-items:center;gap:8px;opacity:0;transition:all .22s;pointer-events:none;z-index:300;border:1px solid var(--bd2);box-shadow:0 4px 20px rgba(0,0,0,.3);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* MINI GRID HOME */
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px}
+.hg-card{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:13px 14px;cursor:pointer;transition:all .15s}
+.hg-card:hover{border-color:var(--bd2);background:var(--sf2)}
+.hg-icon{font-size:20px;margin-bottom:6px}
+.hg-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--ct)}
+.hg-sub{font-size:10px;color:var(--mu);margin-top:2px;line-height:1.4}
+
+/* CALENDAR MINI */
+.cal-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:4px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.cal-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--tx)}
+.cal-nav{width:28px;height:28px;border-radius:7px;border:1px solid var(--bd);background:transparent;cursor:pointer;color:var(--mu);font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-family:'DM Sans',sans-serif}
+.cal-nav:hover{border-color:var(--bd2);color:var(--ct)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-dow{font-size:9px;font-weight:600;text-align:center;color:var(--hi);padding:4px 0;text-transform:uppercase}
+.cal-day{font-size:12px;text-align:center;padding:6px 2px;border-radius:7px;cursor:pointer;color:var(--mu);transition:all .15s;font-family:'DM Mono',monospace}
+.cal-day:hover{background:var(--sf2);color:var(--tx)}
+.cal-day.today{background:var(--ct);color:var(--cx);font-weight:700}
+.cal-day.has-notes{position:relative}
+.cal-day.has-notes::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--amber)}
+.cal-day.other-month{opacity:.25}
+
+/* CHARTS (barras simples) */
+.chart-wrap{background:var(--sf);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:8px}
+.chart-title{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--tx);margin-bottom:12px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:80px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:4px;flex:1}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .4s ease}
+.bar-lbl{font-size:9px;color:var(--hi);font-family:'DM Mono',monospace;white-space:nowrap}
+.bar-val{font-size:9px;color:var(--mu);font-family:'DM Mono',monospace}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="brand">Credixpertos</div>
+    <div class="brand-sub">Panel de Gerencia Comercial</div>
+  </div>
+  <div class="hright">
+    <div class="date-badge" id="date-badge" onclick="showPage('agenda',null)"></div>
+    <button class="hbtn" onclick="requestNotif()" title="Notificaciones">🔔<div class="ndot" id="ndot"></div></button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="showPage('home',this)">🏠 Inicio</button>
+  <button class="tab" onclick="showPage('check',this)">✅ Tareas</button>
+  <button class="tab" onclick="showPage('prod',this)">📊 Producción</button>
+  <button class="tab" onclick="showPage('notas',this)">📝 Notas</button>
+  <button class="tab" onclick="showPage('agenda',this)">📅 Agenda</button>
+  <button class="tab" onclick="showPage('rol',this)">🎯 Mi rol</button>
+</div>
+
+<div class="main">
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="sec">Hoy</div>
+    <div id="home-today"></div>
+    <div class="sec">Esta semana</div>
+    <div id="home-semana"></div>
+    <div class="sec">Accesos rápidos</div>
+    <div class="home-grid">
+      <div class="hg-card" onclick="showPage('prod',document.querySelectorAll('.tab')[2])">
+        <div class="hg-icon">📊</div>
+        <div class="hg-title">Producción</div>
+        <div class="hg-sub" id="hg-prod-sub">Ver indicadores</div>
+      </div>
+      <div class="hg-card" onclick="showPage('notas',document.querySelectorAll('.tab')[3])">
+        <div class="hg-icon">📝</div>
+        <div class="hg-title">Notas</div>
+        <div class="hg-sub" id="hg-notas-sub">Abrir libreta</div>
+      </div>
+      <div class="hg-card" onclick="showPage('check',document.querySelectorAll('.tab')[1])">
+        <div class="hg-icon">✅</div>
+        <div class="hg-title">Mis tareas</div>
+        <div class="hg-sub" id="hg-check-sub">Ver checklist</div>
+      </div>
+      <div class="hg-card" onclick="showPage('rol',document.querySelectorAll('.tab')[5])">
+        <div class="hg-icon">🎯</div>
+        <div class="hg-title">Mi rol</div>
+        <div class="hg-sub">4 ejes clave</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAREAS -->
+  <div class="page" id="page-check">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--tx)">Checklist semanal</div>
+      <button onclick="resetDay()" style="font-size:11px;color:var(--mu);background:transparent;border:none;cursor:pointer;font-family:'DM Sans',sans-serif">↺ Reiniciar día</button>
+    </div>
+    <div class="week-strip" id="week-strip"></div>
+    <div id="check-progress" class="pbar-wrap"></div>
+    <div class="cl" id="check-list"></div>
+  </div>
+
+  <!-- PRODUCCIÓN -->
+  <div class="page" id="page-prod">
+    <div class="semana-nav">
+      <button class="snav-btn" onclick="navSemana(-1)">‹</button>
+      <div class="snav-label" id="sem-label"></div>
+      <button class="snav-btn" onclick="navSemana(1)">›</button>
+    </div>
+    <div class="prod-grid" id="prod-inputs"></div>
+    <div class="conv-rate" id="conv-rate"></div>
+    <div class="sec">Historial de producción</div>
+    <div class="chart-wrap">
+      <div class="chart-title">Leads → Radicados → Desembolsados (últimas 8 semanas)</div>
+      <div class="bars" id="prod-bars"></div>
+    </div>
+  </div>
+
+  <!-- NOTAS -->
+  <div class="page" id="page-notas">
+    <div id="notas-list"></div>
+  </div>
+
+  <!-- AGENDA / RECORDATORIOS -->
+  <div class="page" id="page-agenda">
+    <div class="sec">Calendario</div>
+    <div class="cal-wrap">
+      <div class="cal-head">
+        <button class="cal-nav" onclick="navCal(-1)">‹</button>
+        <div class="cal-title" id="cal-title"></div>
+        <button class="cal-nav" onclick="navCal(1)">›</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+    <div class="sec">Recordatorios fijos</div>
+    <div id="ev-list"></div>
+  </div>
+
+  <!-- ROL -->
+  <div class="page" id="page-rol">
+    <div class="sec">Tus 4 ejes como Gerente Comercial</div>
+    <div id="rol-cards"></div>
+  </div>
+
+</div>
+
+<button class="fab" id="fab" onclick="openModal()">+</button>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeMO(event)">
+  <div class="mbox">
+    <div class="mhandle"></div>
+    <div class="mtitle" id="mtitle">Nueva entrada</div>
+    <div id="mbody"></div>
+    <div class="mfoot" id="mfoot"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><span id="tmsg"></span></div>
+
+<script>
+/* ══════════════════════════════
+   DATA
+══════════════════════════════ */
+let DB = {
+  checks:{
+    lunes:[
+      {id:'c1',title:'Kick-off con coordinadores',time:'08:00',tag:'Reunión',done:false,prio:'alta'},
+      {id:'c2',title:'Revisar leads del CRM con analytics',time:'10:00',tag:'CRM',done:false,prio:'alta'},
+      {id:'c3',title:'Llamada de seguimiento a aliados',time:'11:00',tag:'Alianzas',done:false,prio:'media'},
+    ],
+    martes:[
+      {id:'c4',title:'Call con EXPERTOS Bogotá',time:'09:00',tag:'Alianza',done:false,prio:'alta'},
+      {id:'c5',title:'Validar tabla de asignación',time:'11:00',tag:'Proceso',done:false,prio:'media'},
+    ],
+    miercoles:[
+      {id:'c6',title:'Capacitación políticas bancos EXPERTOS',time:'09:00',tag:'Capacitación',done:false,prio:'alta'},
+      {id:'c7',title:'Capacitación políticas financieras',time:'11:00',tag:'Capacitación',done:false,prio:'alta'},
+      {id:'c8',title:'Revisión campañas IA próxima semana',time:'15:00',tag:'CRM',done:false,prio:'media'},
+    ],
+    jueves:[
+      {id:'c9',title:'Seguimiento producción Bucaramanga',time:'15:00',tag:'Control',done:false,prio:'media'},
+      {id:'c10',title:'Revisar radicaciones activas bancos',time:'11:00',tag:'Bancos',done:false,prio:'media'},
+    ],
+    viernes:[
+      {id:'c11',title:'Reporte de producción semanal',time:'09:00',tag:'Control',done:false,prio:'alta'},
+      {id:'c12',title:'Llamada de cierre con cada aliado',time:'11:00',tag:'Alianzas',done:false,prio:'alta'},
+      {id:'c13',title:'Planificación siguiente semana',time:'15:00',tag:'Estrategia',done:false,prio:'media'},
+    ],
+  },
+  produccion:{}, // clave: 'YYYY-WW' → {leads,contactados,radicados,desembolsados}
+  notas:[], // {id,fecha,titulo,cuerpo,tags:[]}
+  recordatorios:[
+    {id:'r1',title:'Kick-off coordinadores',dia:'Lunes',hora:'08:00',color:'#12cbe3'},
+    {id:'r2',title:'Revisión CRM + analytics',dia:'Lunes',hora:'10:00',color:'#2db87a'},
+    {id:'r3',title:'Capacitación quincenal equipo',dia:'Miércoles',hora:'09:00',color:'#8b77f5'},
+    {id:'r4',title:'Cierre semanal producción',dia:'Viernes',hora:'09:00',color:'#f0a30a'},
+    {id:'r5',title:'Llamada aliados estratégicos',dia:'Viernes',hora:'11:00',color:'#12cbe3'},
+  ],
+  selectedDay:'lunes',
+  calYear: new Date().getFullYear(),
+  calMonth: new Date().getMonth(),
+  semanaOffset:0,
+};
+
+/* ══ HELPERS ══ */
+const DIAS=['lunes','martes','miercoles','jueves','viernes'];
+const DIAS_L={lunes:'Lun',martes:'Mar',miercoles:'Mié',jueves:'Jue',viernes:'Vie'};
+const DIAS_HOY=['domingo','lunes','martes','miercoles','jueves','viernes','sabado'];
+const MESES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const MESES_C=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+const PRIO_C={alta:'#e05c3a',media:'#f0a30a',baja:'#2db87a'};
+const TAG_BG={'Reunión':'rgba(18,203,227,.15)','CRM':'rgba(45,184,122,.15)','Alianzas':'rgba(18,203,227,.15)','Capacitación':'rgba(139,119,245,.15)','Control':'rgba(240,163,10,.15)','Bancos':'rgba(55,138,221,.15)','Estrategia':'rgba(240,163,10,.15)','Proceso':'rgba(45,184,122,.15)','Alianza':'rgba(18,203,227,.15)'};
+const TAG_TX={'Reunión':'#12cbe3','CRM':'#2db87a','Alianzas':'#12cbe3','Capacitación':'#8b77f5','Control':'#f0a30a','Bancos':'#378ADD','Estrategia':'#f0a30a','Proceso':'#2db87a','Alianza':'#12cbe3'};
+
+function uid(){return 'u'+Date.now()+Math.random().toString(36).slice(2,5)}
+function toast(m,d=2400){const t=document.getElementById('toast');document.getElementById('tmsg').textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d)}
+function save(){try{localStorage.setItem('cx_db',JSON.stringify(DB));}catch(e){}}
+function load(){
+  try{
+    const s=JSON.parse(localStorage.getItem('cx_db')||'{}');
+    if(s.checks) Object.assign(DB.checks,s.checks);
+    if(s.produccion) DB.produccion=s.produccion;
+    if(s.notas) DB.notas=s.notas;
+    if(s.recordatorios) DB.recordatorios=s.recordatorios;
+    if(s.selectedDay) DB.selectedDay=s.selectedDay;
+  }catch(e){}
+}
+
+function getWeekKey(offset=0){
+  const d=new Date();d.setDate(d.getDate()+offset*7);
+  const jan1=new Date(d.getFullYear(),0,1);
+  const wk=Math.ceil(((d-jan1)/86400000+jan1.getDay()+1)/7);
+  return `${d.getFullYear()}-W${String(wk).padStart(2,'0')}`;
+}
+function getWeekLabel(offset=0){
+  const d=new Date();d.setDate(d.getDate()+offset*7);
+  const mon=new Date(d);mon.setDate(d.getDate()-((d.getDay()+6)%7));
+  const fri=new Date(mon);fri.setDate(mon.getDate()+4);
+  return `${mon.getDate()} ${MESES_C[mon.getMonth()]} — ${fri.getDate()} ${MESES_C[fri.getMonth()]}`;
+}
+
+/* ══ FECHA ══ */
+function updateDate(){
+  const n=new Date();
+  const ds=['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+  document.getElementById('date-badge').textContent=`${ds[n.getDay()]} ${n.getDate()} ${MESES_C[n.getMonth()]} ${n.getFullYear()}`;
+  // Auto-seleccionar día actual
+  const dayNow=DIAS_HOY[n.getDay()];
+  if(DIAS.includes(dayNow)) DB.selectedDay=dayNow;
+}
+
+/* ══ NOTIFICACIONES ══ */
+async function requestNotif(){
+  if(!('Notification' in window)){toast('Tu navegador no soporta notificaciones');return;}
+  if(Notification.permission==='granted'){scheduleNotifs();toast('🔔 Notificaciones activas');return;}
+  const p=await Notification.requestPermission();
+  if(p==='granted'){document.getElementById('ndot').style.display='block';scheduleNotifs();toast('🔔 Notificaciones activadas');}
+  else toast('⚠ Actívalas en ajustes del navegador');
+}
+function scheduleNotifs(){
+  if(Notification.permission!=='granted')return;
+  DB.recordatorios.forEach(r=>{
+    const [h,m]=r.hora.split(':').map(Number);
+    const now=new Date(),target=new Date();
+    target.setHours(h,m,0,0);
+    let diff=target-now;
+    if(diff<0)diff+=86400000;
+    if(diff<43200000) setTimeout(()=>new Notification('Credixpertos · '+r.title,{body:`${r.dia} · ${r.hora}`,silent:false}),diff);
+  });
+}
+
+/* ══ HOME ══ */
+function renderHome(){
+  const dayKey=DB.selectedDay;
+  const tasks=DB.checks[dayKey]||[];
+  const done=tasks.filter(t=>t.done).length;
+  const pct=tasks.length?Math.round(done/tasks.length*100):0;
+  const semKey=getWeekKey(DB.semanaOffset);
+  const prod=DB.produccion[semKey]||{leads:0,radicados:0,desembolsados:0};
+
+  document.getElementById('home-today').innerHTML=`
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-family:'Syne',sans-serif;font-size:13px;font-weight:700">${DIAS_L[dayKey]||dayKey} — Tareas</div>
+        <div style="font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:var(--ct)">${pct}<span style="font-size:11px;color:var(--mu)">%</span></div>
+      </div>
+      <div class="pbar"><div class="pbar-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:11px;color:var(--mu);margin-top:5px">${done} de ${tasks.length} completadas</div>
+    </div>`;
+
+  document.getElementById('home-semana').innerHTML=`
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <div class="card" style="text-align:center">
+        <div style="font-family:'DM Mono',monospace;font-size:24px;color:var(--ct)">${prod.leads||0}</div>
+        <div style="font-size:10px;color:var(--mu);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">Leads</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-family:'DM Mono',monospace;font-size:24px;color:#f0a30a">${prod.radicados||0}</div>
+        <div style="font-size:10px;color:var(--mu);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">Radicados</div>
+      </div>
+      <div class="card" style="text-align:center">
+        <div style="font-family:'DM Mono',monospace;font-size:24px;color:#2db87a">${prod.desembolsados||0}</div>
+        <div style="font-size:10px;color:var(--mu);margin-top:2px;text-transform:uppercase;letter-spacing:.05em">Desembolsos</div>
+      </div>
+    </div>`;
+
+  const n=DB.notas.length;
+  document.getElementById('hg-notas-sub').textContent=n?`${n} nota${n>1?'s':''} guardada${n>1?'s':''}` :'Abrir libreta';
+  document.getElementById('hg-prod-sub').textContent=prod.leads?`${prod.leads} leads esta semana`:'Ver indicadores';
+  const doneTot=Object.values(DB.checks).flat().filter(t=>t.done).length;
+  const tot=Object.values(DB.checks).flat().length;
+  document.getElementById('hg-check-sub').textContent=`${doneTot}/${tot} completadas`;
+}
+
+/* ══ CHECKLIST ══ */
+function renderStrip(){
+  const el=document.getElementById('week-strip');el.innerHTML='';
+  const todayKey=DIAS_HOY[new Date().getDay()];
+  DIAS.forEach(d=>{
+    const btn=document.createElement('button');
+    btn.className='dpill'+(d===DB.selectedDay?' active':d===todayKey?' today':'');
+    btn.textContent=DIAS_L[d];
+    btn.onclick=()=>{DB.selectedDay=d;save();renderStrip();renderChecks();renderHome();};
+    el.appendChild(btn);
+  });
+}
+function renderChecks(){
+  const tasks=DB.checks[DB.selectedDay]||[];
+  const done=tasks.filter(t=>t.done).length;
+  const pct=tasks.length?Math.round(done/tasks.length*100):0;
+  document.getElementById('check-progress').innerHTML=`
+    <div class="pbar-labels"><span>${done} / ${tasks.length} completadas</span><span style="color:var(--ct);font-family:'DM Mono',monospace">${pct}%</span></div>
+    <div class="pbar"><div class="pbar-fill" style="width:${pct}%"></div></div>`;
+  const list=document.getElementById('check-list');list.innerHTML='';
+  // Ordenar: pendientes primero, luego por hora
+  const sorted=[...tasks].sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return(a.time||'').localeCompare(b.time||'');});
+  sorted.forEach(t=>{
+    const el=document.createElement('div');el.className='ci'+(t.done?' done':'');
+    const tb=TAG_BG[t.tag]||'rgba(255,255,255,.06)';const tt=TAG_TX[t.tag]||'#aaa';
+    el.innerHTML=`
+      <div class="cibox">${t.done?'✓':''}</div>
+      <div class="ci-info">
+        <div class="ci-title">${t.title}</div>
+        <div class="ci-meta">${t.time||''}${t.prio?` · <span style="color:${PRIO_C[t.prio]};font-weight:600">${t.prio.toUpperCase()}</span>`:''}</div>
+      </div>
+      <span class="citag" style="background:${tb};color:${tt}">${t.tag||''}</span>
+      <button class="ibt del" onclick="event.stopPropagation();deleteCheck('${t.id}')">✕</button>`;
+    el.onclick=()=>toggleCheck(t.id);
+    list.appendChild(el);
+  });
+}
+function toggleCheck(id){
+  const t=(DB.checks[DB.selectedDay]||[]).find(x=>x.id===id);
+  if(t){t.done=!t.done;save();renderChecks();renderHome();}
+}
+function deleteCheck(id){
+  DB.checks[DB.selectedDay]=(DB.checks[DB.selectedDay]||[]).filter(x=>x.id!==id);
+  save();renderChecks();renderHome();toast('Tarea eliminada');
+}
+function resetDay(){
+  (DB.checks[DB.selectedDay]||[]).forEach(t=>t.done=false);
+  save();renderChecks();renderHome();toast('Checklist reiniciado');
+}
+
+/* ══ PRODUCCIÓN ══ */
+function renderProd(){
+  const key=getWeekKey(DB.semanaOffset);
+  if(!DB.produccion[key])DB.produccion[key]={leads:0,contactados:0,radicados:0,desembolsados:0};
+  const p=DB.produccion[key];
+  document.getElementById('sem-label').textContent=getWeekLabel(DB.semanaOffset)+(DB.semanaOffset===0?' (esta semana)':'');
+  const fields=[
+    {k:'leads',label:'Leads recibidos',color:'#12cbe3'},
+    {k:'contactados',label:'Contactados',color:'#378ADD'},
+    {k:'radicados',label:'Radicados',color:'#f0a30a'},
+    {k:'desembolsados',label:'Desembolsados',color:'#2db87a'},
+  ];
+  document.getElementById('prod-inputs').innerHTML=fields.map(f=>`
+    <div class="prod-card">
+      <div style="font-size:10px;color:${f.color};text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;font-weight:600">${f.label}</div>
+      <input class="prod-input" style="color:${f.color}" type="number" min="0" value="${p[f.k]||0}" onchange="updateProd('${f.k}',this.value)">
+    </div>`).join('');
+  const conv=p.leads?Math.round((p.desembolsados/p.leads)*100):0;
+  const radPct=p.leads?Math.round((p.radicados/p.leads)*100):0;
+  document.getElementById('conv-rate').innerHTML=`
+    <div>
+      <div class="cr-label">Tasa de conversión</div>
+      <div style="font-size:10px;color:var(--hi);margin-top:2px">Leads → Desembolsos</div>
+    </div>
+    <div class="cr-val">${conv}%</div>`;
+  renderBars();
+}
+function updateProd(k,v){
+  const key=getWeekKey(DB.semanaOffset);
+  if(!DB.produccion[key])DB.produccion[key]={leads:0,contactados:0,radicados:0,desembolsados:0};
+  DB.produccion[key][k]=parseInt(v)||0;
+  save();renderHome();
+  const conv=DB.produccion[key].leads?Math.round((DB.produccion[key].desembolsados/DB.produccion[key].leads)*100):0;
+  document.getElementById('conv-rate').querySelector('.cr-val').textContent=conv+'%';
+  renderBars();
+}
+function navSemana(dir){DB.semanaOffset+=dir;renderProd();}
+function renderBars(){
+  const el=document.getElementById('prod-bars');el.innerHTML='';
+  const semanas=[];
+  for(let i=-7;i<=0;i++){
+    const key=getWeekKey(i);
+    const p=DB.produccion[key]||{leads:0,radicados:0,desembolsados:0};
+    semanas.push({key,p,offset:i});
+  }
+  const maxVal=Math.max(...semanas.map(s=>s.p.leads||0),1);
+  semanas.forEach(s=>{
+    const col=document.createElement('div');col.className='bar-col';
+    const h=Math.max((s.p.leads/maxVal)*64,s.p.leads?4:0);
+    const hr=Math.max((s.p.radicados/maxVal)*64,s.p.radicados?4:0);
+    const hd=Math.max((s.p.desembolsados/maxVal)*64,s.p.desembolsados?4:0);
+    const isCur=s.offset===DB.semanaOffset;
+    col.innerHTML=`
+      <div style="display:flex;gap:2px;align-items:flex-end;height:64px">
+        <div class="bar-fill" style="height:${h}px;background:${isCur?'#12cbe3':'rgba(18,203,227,.3)'};flex:1"></div>
+        <div class="bar-fill" style="height:${hr}px;background:${isCur?'#f0a30a':'rgba(240,163,10,.3)'};flex:1"></div>
+        <div class="bar-fill" style="height:${hd}px;background:${isCur?'#2db87a':'rgba(45,184,122,.3)'};flex:1"></div>
+      </div>
+      <div class="bar-val">${s.p.leads||''}</div>`;
+    el.appendChild(col);
+  });
+}
+
+/* ══ NOTAS ══ */
+function renderNotas(){
+  const el=document.getElementById('notas-list');
+  if(!DB.notas.length){el.innerHTML='<div style="font-size:12px;color:var(--hi);text-align:center;padding:40px 20px;line-height:1.7">Sin notas aún.<br>Usa + para agregar tu primera nota.</div>';return;}
+  el.innerHTML='';
+  const sorted=[...DB.notas].sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
+  sorted.forEach(n=>{
+    const el2=document.createElement('div');el2.className='nota-item';
+    const tagsHTML=(n.tags||[]).map(t=>`<span class="ntag" style="background:rgba(18,203,227,.12);color:#12cbe3">${t}</span>`).join('');
+    el2.innerHTML=`
+      <div class="nota-fecha">${formatDate(n.fecha)}</div>
+      <div class="nota-titulo">${n.titulo}</div>
+      <div class="nota-preview">${n.cuerpo}</div>
+      ${tagsHTML?`<div class="nota-tags">${tagsHTML}</div>`:''}`;
+    el2.onclick=()=>openNotaModal(n.id);
+    el.appendChild(el2);
+  });
+}
+function formatDate(iso){
+  const d=new Date(iso);return`${d.getDate()} ${MESES_C[d.getMonth()]} ${d.getFullYear()} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+/* ══ CALENDARIO ══ */
+function renderCal(){
+  const y=DB.calYear,m=DB.calMonth;
+  document.getElementById('cal-title').textContent=`${MESES[m]} ${y}`;
+  const grid=document.getElementById('cal-grid');grid.innerHTML='';
+  ['L','M','X','J','V','S','D'].forEach(d=>{const el=document.createElement('div');el.className='cal-dow';el.textContent=d;grid.appendChild(el);});
+  const first=new Date(y,m,1).getDay();const offset=(first+6)%7;
+  const dias=new Date(y,m+1,0).getDate();
+  const prevDias=new Date(y,m,0).getDate();
+  const today=new Date();
+  // Días del mes anterior
+  for(let i=offset-1;i>=0;i--){const el=document.createElement('div');el.className='cal-day other-month';el.textContent=prevDias-i;grid.appendChild(el);}
+  // Días del mes actual
+  for(let d=1;d<=dias;d++){
+    const el=document.createElement('div');
+    const isToday=d===today.getDate()&&m===today.getMonth()&&y===today.getFullYear();
+    const dateStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const hasNote=DB.notas.some(n=>n.fecha&&n.fecha.startsWith(dateStr));
+    el.className='cal-day'+(isToday?' today':'')+(hasNote?' has-notes':'');
+    el.textContent=d;
+    grid.appendChild(el);
+  }
+  // Recordatorios
+  const evEl=document.getElementById('ev-list');evEl.innerHTML='';
+  DB.recordatorios.forEach(r=>{
+    const el=document.createElement('div');el.className='ev-item';
+    el.innerHTML=`
+      <div class="ev-dot" style="background:${r.color}"></div>
+      <div class="ev-info"><div class="ev-title">${r.title}</div><div class="ev-time">${r.dia} · ${r.hora}</div></div>
+      <button class="ibt del" onclick="deleteEv('${r.id}')">✕</button>`;
+    evEl.appendChild(el);
+  });
+}
+function navCal(d){const m=DB.calMonth+d;if(m<0){DB.calMonth=11;DB.calYear--;}else if(m>11){DB.calMonth=0;DB.calYear++;}else DB.calMonth=m;renderCal();}
+function deleteEv(id){DB.recordatorios=DB.recordatorios.filter(x=>x.id!==id);save();renderCal();toast('Recordatorio eliminado');}
+
+/* ══ ROL ══ */
+const ROL=[
+  {icon:'📡',title:'Arquitecto de campañas IA',sub:'Tú defines — analytics ejecuta',cb:'rgba(18,203,227,.08)',bb:'rgba(18,203,227,.2)',bt:'#12cbe3',badge:'Estratégico',items:['Decidir qué base de datos se trabaja cada semana','Definir qué campaña se lanza y con qué perfil objetivo','Orientar cómo perfilar los leads por entidad y ciudad','Analizar con analytics qué campañas arrojaron mejores clientes','Ajustar estrategia según tasa de cierre de la semana anterior']},
+  {icon:'🤝',title:'Garante de alianzas',sub:'Las alianzas se caen sin mantenimiento',cb:'rgba(45,184,122,.08)',bb:'rgba(45,184,122,.2)',bt:'#2db87a',badge:'Relacional',items:['Llamada semanal con EXPERTOS Medellín, Bogotá y Bucaramanga','Seguimiento a CREDI-DIGITAL, FINACTIVA y Alcira Ruiz','Verificar que los acuerdos de comisión se están cumpliendo','Resolver bloqueos que los coordinadores no pueden resolver','Explorar nuevas alianzas de radicación en ciudades nuevas']},
+  {icon:'📊',title:'Control de producción',sub:'Sin datos no hay decisiones',cb:'rgba(240,163,10,.08)',bb:'rgba(240,163,10,.2)',bt:'#f0a30a',badge:'Control',items:['Revisar semanalmente: leads → contactados → radicados → desembolsados','Identificar dónde está el tapón cada semana','Verificar que lo radicado con códigos CX quede registrado','Supervisar comisiones y liquidaciones de oficinas aliadas','Reporte mensual de producción por ciudad y canal']},
+  {icon:'🎓',title:'Capacitación focalizada',sub:'No general — por entidad y por rol',cb:'rgba(139,119,245,.08)',bb:'rgba(139,119,245,.2)',bt:'#8b77f5',badge:'Formación',items:['Sesión quincenal con Johana: novedades de los 4 bancos EXPERTOS','Sesión quincenal con Jessica: cambios en políticas financieras','Compartir casos reales del mes — qué se aprobó y por qué','Capacitar a nuevos asesores en tabla de asignación y protocolo','Actualizar al equipo cuando una entidad cambia requisitos']},
+];
+function renderRol(){
+  const el=document.getElementById('rol-cards');el.innerHTML='';
+  ROL.forEach((r,i)=>{
+    const card=document.createElement('div');card.className='rol-card';
+    card.style.cssText=`background:${r.cb};border-color:${r.bb}`;
+    card.innerHTML=`
+      <div class="rc-head" onclick="toggleRol(${i})">
+        <div class="rc-icon" style="background:${r.bb}">${r.icon}</div>
+        <div class="rc-info"><div class="rc-title">${r.title}</div><div class="rc-sub">${r.sub}</div></div>
+        <span class="rc-badge" style="background:${r.bb};color:${r.bt}">${r.badge}</span>
+      </div>
+      <div class="rc-body" id="rb-${i}">${r.items.map(it=>`<div class="ri">${it}</div>`).join('')}</div>`;
+    el.appendChild(card);
+  });
+}
+function toggleRol(i){document.getElementById('rb-'+i)?.classList.toggle('open');}
+
+/* ══ MODAL ══ */
+let modalMode='check',editId=null;
+function openModal(){
+  const pid=document.querySelector('.page.active')?.id;
+  editId=null;
+  if(pid==='page-notas'){modalMode='nota';buildNotaModal(null);}
+  else if(pid==='page-agenda'){modalMode='ev';buildEvModal();}
+  else{modalMode='check';buildCheckModal();}
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(()=>document.querySelector('#mbody input, #mbody textarea')?.focus(),300);
+}
+function openNotaModal(id){
+  editId=id;modalMode='nota';
+  const n=DB.notas.find(x=>x.id===id);
+  buildNotaModal(n);
+  document.getElementById('modal-overlay').classList.add('open');
+  setTimeout(()=>document.querySelector('#mbody input')?.focus(),300);
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');editId=null;}
+function closeMO(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
+
+function buildCheckModal(){
+  document.getElementById('mtitle').textContent='Nueva tarea';
+  document.getElementById('mbody').innerHTML=`
+    <div class="mfg"><label>Título de la tarea</label><input id="m-t" placeholder="ej: Llamada con EXPERTOS"></div>
+    <div class="mrow">
+      <div class="mfg"><label>Hora</label><input id="m-h" type="time" value="09:00"></div>
+      <div class="mfg"><label>Día</label><select id="m-d">${DIAS.map(d=>`<option value="${d}"${d===DB.selectedDay?' selected':''}>${DIAS_L[d]}</option>`).join('')}</select></div>
+    </div>
+    <div class="mrow">
+      <div class="mfg"><label>Etiqueta</label><input id="m-tag" placeholder="Alianzas, CRM..."></div>
+      <div class="mfg"><label>Prioridad</label><select id="m-p"><option value="alta">🔴 Alta</option><option value="media" selected>🟡 Media</option><option value="baja">🟢 Baja</option></select></div>
+    </div>`;
+  document.getElementById('mfoot').innerHTML=`<button class="mbtn cancel" onclick="closeModal()">Cancelar</button><button class="mbtn ok" onclick="saveModal()">✓ Guardar</button>`;
+}
+
+function buildNotaModal(n){
+  document.getElementById('mtitle').textContent=n?'Editar nota':'Nueva nota';
+  document.getElementById('mbody').innerHTML=`
+    <div class="mfg"><label>Título</label><input id="m-t" placeholder="ej: Call con EXPERTOS Bogotá" value="${n?.titulo||''}"></div>
+    <div class="mfg"><label>Contenido</label><textarea id="m-c" placeholder="Escribe aquí los detalles, decisiones, acuerdos...">${n?.cuerpo||''}</textarea></div>
+    <div class="mfg"><label>Etiquetas (separadas por coma)</label><input id="m-tags" placeholder="Alianzas, EXPERTOS..." value="${(n?.tags||[]).join(', ')}"></div>`;
+  const foot=n?`<button class="mbtn danger" onclick="deleteNota('${n.id}')">🗑 Eliminar</button><button class="mbtn ok" onclick="saveModal()">✓ Guardar</button>`:
+    `<button class="mbtn cancel" onclick="closeModal()">Cancelar</button><button class="mbtn ok" onclick="saveModal()">✓ Guardar</button>`;
+  document.getElementById('mfoot').innerHTML=foot;
+}
+
+function buildEvModal(){
+  document.getElementById('mtitle').textContent='Nuevo recordatorio';
+  const cols=['#12cbe3','#2db87a','#8b77f5','#f0a30a','#e05c3a'];
+  document.getElementById('mbody').innerHTML=`
+    <div class="mfg"><label>Título</label><input id="m-t" placeholder="ej: Reunión coordinadores"></div>
+    <div class="mrow">
+      <div class="mfg"><label>Día</label><select id="m-dia">${['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Diario'].map(d=>`<option>${d}</option>`).join('')}</select></div>
+      <div class="mfg"><label>Hora</label><input id="m-hora" type="time" value="09:00"></div>
+    </div>`;
+  document.getElementById('mfoot').innerHTML=`<button class="mbtn cancel" onclick="closeModal()">Cancelar</button><button class="mbtn ok" onclick="saveModal()">✓ Guardar</button>`;
+}
+
+function saveModal(){
+  const title=(document.getElementById('m-t')?.value||'').trim();
+  if(!title){toast('⚠ Ingresa un título');return;}
+  if(modalMode==='check'){
+    const day=document.getElementById('m-d')?.value||DB.selectedDay;
+    if(!DB.checks[day])DB.checks[day]=[];
+    DB.checks[day].push({id:uid(),title,time:document.getElementById('m-h')?.value||'',tag:document.getElementById('m-tag')?.value.trim()||'',done:false,prio:document.getElementById('m-p')?.value||'media'});
+    if(DB.selectedDay!==day){DB.selectedDay=day;renderStrip();}
+    renderChecks();renderHome();toast('✅ Tarea agregada');
+  } else if(modalMode==='nota'){
+    const cuerpo=(document.getElementById('m-c')?.value||'').trim();
+    const tags=(document.getElementById('m-tags')?.value||'').split(',').map(t=>t.trim()).filter(Boolean);
+    if(editId){
+      const n=DB.notas.find(x=>x.id===editId);
+      if(n){n.titulo=title;n.cuerpo=cuerpo;n.tags=tags;}
+      toast('📝 Nota actualizada');
+    } else {
+      DB.notas.unshift({id:uid(),fecha:new Date().toISOString(),titulo:title,cuerpo,tags});
+      toast('📝 Nota guardada');
+    }
+    renderNotas();renderCal();renderHome();
+  } else if(modalMode==='ev'){
+    const cols=['#12cbe3','#2db87a','#8b77f5','#f0a30a','#e05c3a'];
+    DB.recordatorios.push({id:uid(),title,dia:document.getElementById('m-dia')?.value||'Lunes',hora:document.getElementById('m-hora')?.value||'09:00',color:cols[DB.recordatorios.length%cols.length]});
+    renderCal();scheduleNotifs();toast('🔔 Recordatorio agregado');
+  }
+  save();closeModal();
+}
+
+function deleteNota(id){
+  if(!confirm('¿Eliminar esta nota?'))return;
+  DB.notas=DB.notas.filter(x=>x.id!==id);
+  save();closeModal();renderNotas();renderCal();renderHome();toast('Nota eliminada');
+}
+
+/* ══ NAV ══ */
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+id)?.classList.add('active');
+  if(el&&el.classList) el.classList.add('active');
+  if(id==='home'){renderHome();}
+  if(id==='check'){renderStrip();renderChecks();}
+  if(id==='prod'){renderProd();}
+  if(id==='notas'){renderNotas();}
+  if(id==='agenda'){renderCal();}
+  if(id==='rol'){renderRol();}
+}
+
+/* ══ INIT ══ */
+load();
+updateDate();
+renderHome();
+renderStrip();
+renderChecks();
+renderRol();
+if(Notification.permission==='granted'){document.getElementById('ndot').style.display='block';scheduleNotifs();}
+setInterval(updateDate,60000);
+</script>
+</body>
+</html>
